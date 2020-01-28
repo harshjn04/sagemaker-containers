@@ -109,7 +109,7 @@ class Worker(flask.Flask):
                 rule="/execution-parameters",
                 endpoint="execution-parameters",
                 view_func=execution_parameters_fn,
-                methods=["GET"],
+                methods=["GET", "POST"],
             )
 
         self.request_class = Request

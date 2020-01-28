@@ -87,26 +87,56 @@ def start(module_app):
 
     pythonpath = ",".join(sys.path + [_env.code_dir])
 
-    gunicorn = subprocess.Popen(
-        [
-            "gunicorn",
-            "--timeout",
-            str(env.model_server_timeout),
-            "-k",
-            "gevent",
-            "--pythonpath",
-            pythonpath,
-            "-b",
-            gunicorn_bind_address,
-            "--worker-connections",
-            str(1000 * env.model_server_workers),
-            "-w",
-            str(env.model_server_workers),
-            "--log-level",
-            "info",
-            module_app,
-        ]
-    )
+    if env.model_server_worker_class_type == "gevent":
+        print("Using gevent concurrency. Workers: {}, Keep-Alive: {}.".format(
+            env.model_server_workers, env.model_server_keep_alive_sec))
+        gunicorn = subprocess.Popen(
+            [
+                "gunicorn",
+                "--timeout",
+                str(env.model_server_timeout),
+                "-k",
+                "gevent",
+                "--pythonpath",
+                pythonpath,
+                "-b",
+                gunicorn_bind_address,
+                "--worker-connections",
+                str(1000 * env.model_server_workers),
+                "-w",
+                str(env.model_server_workers),
+                "--log-level",
+                str(env.model_server_log_level),
+                "--keep-alive",
+                str(env.model_server_keep_alive_sec),
+                module_app,
+            ]
+        )
+    else:
+        print("Using gthread concurrency. Workers: {}, Threads: {}, Keep-Alive: {}.".format(env.model_server_workers,
+                                                env.model_server_worker_threads, env.model_server_keep_alive_sec))
+        gunicorn = subprocess.Popen(
+            [
+                "gunicorn",
+                "--timeout",
+                str(env.model_server_timeout),
+                "-k",
+                "gthread",
+                "--pythonpath",
+                pythonpath,
+                "-b",
+                gunicorn_bind_address,
+                "--threads",
+                str(env.model_server_worker_threads),
+                "-w",
+                str(env.model_server_workers),
+                "--log-level",
+                str(env.model_server_log_level),
+                "--keep-alive",
+                str(env.model_server_keep_alive_sec),
+                module_app,
+            ]
+        )
 
     _add_sigterm_handler(nginx, gunicorn)
 

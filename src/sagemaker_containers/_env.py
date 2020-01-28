@@ -904,6 +904,12 @@ class ServingEnv(_Env):
         http_port = os.environ.get(_params.SAGEMAKER_BIND_TO_PORT_ENV, "8080")
         safe_port_range = os.environ.get(_params.SAGEMAKER_SAFE_PORT_RANGE_ENV)
 
+        model_server_worker_class_type = os.environ.get(_params.MODEL_SERVER_WORKER_CLASS_TYPE_ENV, "gevent")
+        model_server_worker_connection = os.environ.get(_params.MODEL_SERVER_WORKER_CONNECTION_ENV, "1200")
+        model_server_worker_threads = os.environ.get(_params.MODEL_SERVER_THREAD_ENV, "800")
+        model_server_log_level = os.environ.get(_params.MODEL_SERVER_LOG_LEVEL, "info")
+        model_server_keep_alive_sec = os.environ.get(_params.MODEL_SERVER_KEEP_ALIVE_SEC, "5")
+
         self._use_nginx = use_nginx
         self._model_server_timeout = model_server_timeout
         self._model_server_workers = model_server_workers
@@ -911,6 +917,32 @@ class ServingEnv(_Env):
         self._default_accept = default_accept
         self._http_port = http_port
         self._safe_port_range = safe_port_range
+
+        self._model_server_worker_class_type = model_server_worker_class_type
+        self._model_server_worker_connection = model_server_worker_connection
+        self._model_server_worker_threads = model_server_worker_threads
+        self._model_server_log_level = model_server_log_level
+        self._model_server_keep_alive_sec = model_server_keep_alive_sec
+
+    @property
+    def model_server_keep_alive_sec(self):
+        return self._model_server_keep_alive_sec
+
+    @property
+    def model_server_log_level(self):
+        return self._model_server_log_level
+
+    @property
+    def model_server_worker_threads(self):
+        return self._model_server_worker_threads
+
+    @property
+    def model_server_worker_connection(self):
+        return self._model_server_worker_connection
+
+    @property
+    def model_server_worker_class_type(self):
+        return self._model_server_worker_class_type
 
     @property
     def use_nginx(self):  # type: () -> bool
